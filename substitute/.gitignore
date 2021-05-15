@@ -1,0 +1,4 @@
+*.swp
+out
+config.log
+config.status
