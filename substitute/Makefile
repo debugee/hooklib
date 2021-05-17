@@ -4,7 +4,6 @@ all: out/libsubstitute.0.dylib
 CC=xcrun -sdk iphoneos clang 
 CFLAGS= -arch arm64 -I./lib -I./substrate -I./vendor -fvisibility=hidden -O3 -miphoneos-version-min=11.0 -c -o
 LDFLAGS= -dylib -undefined dynamic_lookup -o 
-LD=ld -arch arm64
 LDID= ldid
 SIGN_FLAGS= -S./ent.plist
 
@@ -80,7 +79,10 @@ OBJS= out/generated/darwin-inject-asm.o \
 	out/lib/strerror.o 
 out/libsubstitute.dylib: $(OBJS) ent.plist
 	mkdir -p out
-	xcrun --sdk iphoneos cc -arch arm64 -dynamiclib -lobjc -install_name /usr/lib/libsubstitute.0.dylib -dead_strip -O3 -miphoneos-version-min=11.0 $(OBJS) -o $@
+	xcrun --sdk iphoneos cc -arch arm64 -dynamiclib -lobjc -install_name /usr/lib/libsubstitute.0.dylib -O3 -miphoneos-version-min=11.0 $(OBJS) -o $@
+	ar -rc out/libsubstitute.a $(OBJS)
+	rm -rdf out/lib/
+	rm -rdf out/generated/
 	$(LDID) $(SIGN_FLAGS) $@
 
 out/libsubstitute.0.dylib: out/libsubstitute.dylib

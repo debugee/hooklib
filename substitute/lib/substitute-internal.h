@@ -9,7 +9,7 @@
     __builtin_unreachable(); \
 } while(0)
 
-#define EXPORT __attribute__ ((visibility("default")))
+#define EXPORT //__attribute__ ((visibility("default")))
 #define UNUSED __attribute__((unused))
 
 #ifdef __APPLE__
