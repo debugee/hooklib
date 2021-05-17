@@ -79,7 +79,7 @@ OBJS= out/generated/darwin-inject-asm.o \
 	out/lib/strerror.o 
 out/libsubstitute.dylib: $(OBJS) ent.plist
 	mkdir -p out
-	xcrun --sdk iphoneos cc -arch arm64 -dynamiclib -lobjc -install_name /usr/lib/libsubstitute.0.dylib -O3 -miphoneos-version-min=11.0 $(OBJS) -o $@
+	xcrun --sdk iphoneos cc -arch arm64 -dynamiclib -lobjc -install_name /usr/lib/libsubstitute.0.dylib -O3 -dead_strip -miphoneos-version-min=11.0 $(OBJS) -o $@
 	ar -rc out/libsubstitute.a $(OBJS)
 	rm -rdf out/lib/
 	rm -rdf out/generated/
