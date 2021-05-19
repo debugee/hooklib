@@ -1,11 +1,18 @@
 .PHONY: all
-all: out/libsubstitute.0.dylib
+all: out/libsubstitute.a  headers clean
 
 CC=xcrun -sdk iphoneos clang 
 CFLAGS= -arch arm64 -I./lib -I./substrate -I./vendor -fvisibility=hidden -O3 -miphoneos-version-min=11.0 -c -o
 LDFLAGS= -dylib -undefined dynamic_lookup -o 
-LDID= ldid
-SIGN_FLAGS= -S./ent.plist
+
+CERT ?= 0
+ifeq ($(CERT), 1)
+	SIGN = codesign
+	SIGN_FLAGS = -f -s 'Apple Development: Wen Cheng (Y9UU5S8ZW7)' --entitlements Ent.plist
+else
+	SIGN = jtool
+	SIGN_FLAGS = --sign --inplace --ent Ent.plist
+endif
 
 out/generated/darwin-inject-asm.o: generated/darwin-inject-asm.S
 	mkdir -p out/generated
@@ -77,20 +84,24 @@ OBJS= out/generated/darwin-inject-asm.o \
 	out/lib/transform-dis.o \
 	out/lib/hook-functions.o \
 	out/lib/strerror.o 
+
 out/libsubstitute.dylib: $(OBJS) ent.plist
 	mkdir -p out
-	#xcrun --sdk iphoneos cc -arch arm64 -dynamiclib -lobjc -install_name /usr/lib/libsubstitute.0.dylib -O3 -dead_strip -miphoneos-version-min=11.0 $(OBJS) -o $@
+	$(CC) -arch arm64 -dynamiclib -lobjc -install_name /usr/lib/libsubstitute.0.dylib -O3 -dead_strip -miphoneos-version-min=11.0 $(OBJS) -o $@
+	$(LDID) $(SIGN_FLAGS) $@
+
+out/libsubstitute.a: $(OBJS)
+	mkdir -p out
 	ar -rc out/libsubstitute.a $(OBJS)
-	rm -rdf out/lib/
-	rm -rdf out/generated/
-	#$(LDID) $(SIGN_FLAGS) $@
 
 out/libsubstitute.0.dylib: out/libsubstitute.dylib
-	mkdir -p substitute/out
-	#ln -nfs libsubstitute.dylib $@
+	ln -nfs libsubstitute.dylib $@
+
+headers:
 	mkdir -p out/usr/include/substitute
 	cp -f lib/substitute.h out/usr/include/substitute/substitute.h
 	cp -f substrate/substrate.h  out/usr/include/substitute/substrate.h
-	
+
 clean:
-	rm -rfd ./out
+	rm -rdf out/lib/
+	rm -rdf out/generated/
