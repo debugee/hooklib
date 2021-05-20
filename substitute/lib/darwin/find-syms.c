@@ -365,7 +365,7 @@ int substitute_find_private_syms(struct substitute_image *im,
 }
 
 
-//__attribute__((constructor))
+__attribute__((constructor))
 void init(void) {
     void *lib = dlopen("/usr/lib/system/libdyld.dylib", RTLD_LAZY);
     if (lib != NULL)

@@ -1,5 +1,5 @@
-.PHONY: all
-all: out/libsubstitute.a  headers clean
+.PHONY: all clean
+all: out/libsubstitute.a  headers 
 
 CC=xcrun -sdk iphoneos clang 
 CFLAGS= -arch arm64 -I./lib -I./substrate -I./vendor -fvisibility=hidden -O3 -miphoneos-version-min=11.0 -c -o
@@ -105,3 +105,4 @@ headers:
 clean:
 	rm -rdf out/lib/
 	rm -rdf out/generated/
+	#rm -f out/libsubstitute.a
